@@ -10,14 +10,6 @@ FILETYPE=`file ${SUBFILE}`
 CNT='0'
 LOG='cleansub.log'
 
-grep -i "font color" ${SUBFILE} > /dev/null
-if [ $? -eq '0' ]
-then
-    echo "Contains 'Font Color' flags, try another srt file"
-    exit 1
-fi
-
-
 if [[ "${FILETYPE}" =~ "CRLF" ]]
 then
     echo "Converting from DOS format"
@@ -27,7 +19,15 @@ elif [[ ${FILETYPE} =~ "ASCII" ]]
 then
     echo "Subtitle is of unix format"
 fi
- 
+
+grep -i "font color" ${SUBFILE} > /dev/null
+if [ $? -eq '0' ]
+then
+    echo "Contains 'Font Color' flags, cleaning up file"
+    cat ${SUBFILE} |sed 's/<i>//g' | sed 's/<\/i>//g' | sed 's/<font.*font>//g' > ${SUBFILE}_2
+    mv ${SUBFILE}_2 ${SUBFILE}
+fi
+
 cat /dev/null > ${NEW_SUB_FILE}
 cat ${SUBFILE} |tr '[:upper:]' '[:lower:]' > ${SUBFILE}_2
 mv ${SUBFILE}_2 ${SUBFILE}
